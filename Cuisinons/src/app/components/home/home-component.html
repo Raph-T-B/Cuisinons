@@ -1,7 +1,7 @@
-<p>home-component works!</p>
+
 <h1>Accueil</h1>
 <h2>Les 5 dernières recettes</h2>
-
+<!--
 @if (isLoading) {
   <p>Chargement des recettes...</p>
 } @else if (errorMessage) {
@@ -16,7 +16,7 @@
           <a [routerLink]="['/recipes', recipe.id]">{{ recipe.name }}</a>
         </h3>
 
-        <!-- Utilisation directe du Pipe Truncate à 15 caractères -->
+         Utilisation directe du Pipe Truncate à 15 caractères
         <p>Description : {{ recipe.description | truncate:15 }}</p>
 
         <p>
@@ -30,4 +30,4 @@
       </li>
     }
   </ul>
-}
+} -->

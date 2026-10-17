@@ -1,4 +1,4 @@
-import { Ingredient } from "../model/ingredients";
+import { Ingredient } from "../models/ingredients";
 import { HttpClient } from "@angular/common/http";
 import {inject,Injectable} from "@angular/core"
 @Injectable({

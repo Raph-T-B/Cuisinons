@@ -11,11 +11,12 @@ import { NotFound } from './components/not-found/not-found';
 export const routes: Routes = [
   // Route par défaut quand non connecté
   {
-    path: 'connexion',
+    path: '',
     component: LoginComponent,
     canActivate:[guestGuard],
     title: 'Connexion'
   },
+
   // Routes protégées par la connection
   {
     path: 'acceuil',
@@ -44,6 +45,11 @@ export const routes: Routes = [
   // Redirection par défaut si URL inconnue
   {
     path: '**',
+    canActivate: [authGuard],
     component : NotFound
+  },{
+    path: '**',
+    canActivate: [guestGuard],
+    component:LoginComponent
   }
 ];

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TruncatePipe } from '../../pipes/truncate-pipe';
-import { RecipeService } from '../../../services/recipe.service';
-import { Recipe } from '../../../models/recipe.model';
+import { RecettesService } from '../../services/RecettesService';
+import { Recette } from '../../models/recettes';
 
 @Component({
   selector: 'app-home-component',
@@ -11,28 +11,28 @@ import { Recipe } from '../../../models/recipe.model';
   templateUrl: './home-component.html',
   styleUrl: './home-component.css'
 })
-export class HomeComponent implements OnInit {
-  recipes: Recipe[] = [];
+export class HomeComponent {
+  recipes: Recette[] = [];
   isLoading = true;
   errorMessage = '';
 
-  constructor(private recipeService: RecipeService) {}
+  constructor(private recipeService: RecettesService) {}
 
-  ngOnInit(): void {
-    this.recipeService.getLatestRecipes().subscribe({
-      next: (data) => {
-        this.recipes = data;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Erreur API:', err);
-        this.errorMessage = 'Impossible de charger les recettes.';
-        this.isLoading = false;
-      }
-    });
-  }
+  // ngOnInit(): void {
+  //   this.recipeService.liste().subscribe({
+  //     next: (data) => {
+  //       this.recipes = data;
+  //       this.isLoading = false;
+  //     },
+  //     error: (err) => {
+  //       console.error('Erreur API:', err);
+  //       this.errorMessage = 'Impossible de charger les recettes.';
+  //       this.isLoading = false;
+  //     }
+  //   });
+  // }
 
-  getAverageRating(recipe: Recipe): number | null {
-    return this.recipeService.calculateAverageRating(recipe.reviews);
-  }
+  // getAverageRating(recipe: Recette): number | null {
+  //   return this.recipeService.MoyenneNotes(recipe.notes);
+  // }
 }
