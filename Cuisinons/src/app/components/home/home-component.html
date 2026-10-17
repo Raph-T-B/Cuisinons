@@ -1,33 +1,107 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <!-- Bannière d'accueil -->
+  <section class="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 rounded-3xl p-8 sm:p-12 text-white shadow-lg relative overflow-hidden">
+    <div class="relative z-10 max-w-2xl">
+      <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold tracking-wide uppercase mb-3">
+        Bienvenue aux fourneaux
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+        Explorez et partagez de délicieuses recettes
+      </h1>
+      <p class="mt-4 text-orange-100 text-sm sm:text-base leading-relaxed">
+        Découvrez les dernières créations culinaires de notre communauté, notez vos plats préférés et partagez vos meilleures recettes !
+      </p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a routerLink="/recettes" class="px-5 py-2.5 rounded-xl bg-white text-orange-600 font-bold text-sm shadow hover:bg-orange-50 transition">
+          Toutes les recettes
+        </a>
+        <a routerLink="/recette/ajout" class="px-5 py-2.5 rounded-xl bg-orange-700/60 hover:bg-orange-700/80 text-white font-semibold text-sm backdrop-blur-sm transition border border-white/20">
+          + Proposer une recette
+        </a>
+      </div>
+    </div>
+    <div class="absolute right-4 -bottom-8 opacity-20 text-9xl select-none pointer-events-none hidden lg:block">
+      🍲
+    </div>
+  </section>
 
-<h1>Accueil</h1>
-<h2>Les 5 dernières recettes</h2>
-
-@if (isLoading) {
-  <p>Chargement des recettes...</p>
-} @else if (errorMessage) {
-  <p>{{ errorMessage }}</p>
-} @else if (recettes.length === 0) {
-  <p>Aucune recette trouvée.</p>
-} @else {
-  <ul>
-    @for (recette of recettes; track recette.id) {
-      <li>
-        <h3>
-          <a [routerLink]="['/recette', recette.id]">{{ recette.name }}</a>
-        </h3>
-
-         <!-- Utilisation directe du Pipe Truncate à 15 caractères -->
-        <p>Description : {{ recette.description | truncate:15 }}</p>
-
-        <p>
-          Note moyenne :
-          @if (getMoyenneNotes(recette) !== null) {
-            {{ getMoyenneNotes(recette) }} / 5
-          } @else {
-            Aucun avis
-          }
+  <!-- Section 5 dernières recettes -->
+  <section class="space-y-6">
+    <div class="flex items-center justify-between border-b border-gray-200 pb-4">
+      <div>
+        <h2 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+          <span>🔥</span> Les 5 dernières recettes
+        </h2>
+        <p class="text-xs sm:text-sm text-gray-500 mt-1">
+          Les nouveautés culinaires récemment ajoutées
         </p>
-      </li>
+      </div>
+      <a routerLink="/recettes" class="text-sm font-semibold text-orange-600 hover:text-orange-700 hover:underline">
+        Voir tout &rarr;
+      </a>
+    </div>
+
+    @if (isLoading) {
+      <div class="flex flex-col items-center justify-center py-16 space-y-3">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-orange-500 border-t-transparent"></div>
+        <p class="text-sm text-gray-500 font-medium">Chargement des 5 dernières recettes...</p>
+      </div>
+    } @else if (errorMessage) {
+      <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg text-red-700 text-sm">
+        {{ errorMessage }}
+      </div>
+    } @else if (recettes.length === 0) {
+      <div class="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8">
+        <span class="text-5xl">🥣</span>
+        <p class="mt-2 text-gray-600 font-medium">Aucune recette trouvée.</p>
+        <a routerLink="/recette/ajout" class="mt-4 inline-block text-sm font-semibold text-orange-600 hover:underline">
+          Soyez le premier à en ajouter une !
+        </a>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+        @for (recette of recettes; track recette.id) {
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-orange-200 transition-all duration-200 flex flex-col overflow-hidden group">
+            <div class="p-5 flex-1 flex flex-col justify-between">
+              <div>
+                <div class="flex items-start justify-between gap-2 mb-2">
+                  <h3 class="text-base font-bold text-gray-900 group-hover:text-orange-600 transition line-clamp-1">
+                    <a [routerLink]="['/recette', recette.id]" class="focus:outline-none">
+                      {{ recette.name }}
+                    </a>
+                  </h3>
+                </div>
+
+                <!-- 15 premiers caractères de la description via TruncatePipe -->
+                <p class="text-xs text-gray-500 line-clamp-2 mb-4" title="{{ recette.description }}">
+                  {{ recette.description | truncate:15 }}
+                </p>
+              </div>
+
+              <!-- Moyenne des notes -->
+              <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+                <span class="text-gray-400 font-medium">Note :</span>
+                @if (getMoyenneNotes(recette) !== null) {
+                  <span class="inline-flex items-center gap-1 font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                    <span>★</span>
+                    <span>{{ getMoyenneNotes(recette) }} / 5</span>
+                  </span>
+                } @else {
+                  <span class="text-gray-400 italic">Aucun avis</span>
+                }
+              </div>
+            </div>
+
+            <!-- Bouton voir détail -->
+            <a
+              [routerLink]="['/recette', recette.id]"
+              class="block w-full text-center py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-semibold transition border-t border-orange-100"
+            >
+              Voir la recette &rarr;
+            </a>
+          </div>
+        }
+      </div>
     }
-  </ul>
-}
+  </section>
+</div>

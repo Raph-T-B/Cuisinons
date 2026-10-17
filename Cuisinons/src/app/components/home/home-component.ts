@@ -7,11 +7,11 @@ import { Recette } from '../../models/recettes';
 @Component({
   selector: 'app-home-component',
   standalone: true,
-  imports: [RouterLink, TruncatePipe], // Ajouté ici
+  imports: [RouterLink, TruncatePipe],
   templateUrl: './home-component.html',
   styleUrl: './home-component.css'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   recettes: Recette[] = [];
   isLoading = true;
   errorMessage = '';
@@ -19,20 +19,20 @@ export class HomeComponent {
   constructor(private recettesServ: RecettesService) {}
 
   ngOnInit(): void {
-    this.recettesServ.liste().subscribe({
+    this.recettesServ.getLatestRecipes(5).subscribe({
       next: (data) => {
         this.recettes = data;
         this.isLoading = false;
       },
       error: (err) => {
         console.error('Erreur API:', err);
-        this.errorMessage = 'Impossible de charger les recettes.';
+        this.errorMessage = 'Impossible de charger les recettes pour le moment.';
         this.isLoading = false;
       }
     });
   }
 
   getMoyenneNotes(recipe: Recette): number | null {
-    return this.recettesServ.MoyenneNotes(recipe.notes);
+    return this.recettesServ.getRecipeAverage(recipe);
   }
 }

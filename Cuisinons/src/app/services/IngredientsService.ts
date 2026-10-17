@@ -1,19 +1,28 @@
 import { Ingredient } from "../models/ingredients";
 import { HttpClient } from "@angular/common/http";
-import {inject,Injectable} from "@angular/core"
+import { inject, Injectable } from "@angular/core";
+import { Observable } from "rxjs";
+
 @Injectable({
-  providedIn:'root'
+  providedIn: 'root'
 })
-export class IngredientsService{
+export class IngredientsService {
   private http = inject(HttpClient);
-  private API_URL=new URL('https://6ab976bcf84897980b729a5b.mockapi.io/ingredients');
-  list(){
-    return this.http.get<Ingredient[]>(String(this.API_URL));
+  private API_URL = 'https://6ab976bcf84897980b729a5b.mockapi.io/ingredients';
+
+  list(): Observable<Ingredient[]> {
+    return this.http.get<Ingredient[]>(this.API_URL);
   }
-  addIngredients(ingredient: Ingredient) {
-    return this.http.post<Ingredient>(String(this.API_URL), ingredient);
+
+  getById(id: string | number): Observable<Ingredient> {
+    return this.http.get<Ingredient>(`${this.API_URL}/${id}`);
   }
-  findBy(name: string) {
-    return this.http.get<Ingredient>(String(this.API_URL) + '?name=' + name);
+
+  addIngredients(ingredient: Partial<Ingredient>): Observable<Ingredient> {
+    return this.http.post<Ingredient>(this.API_URL, ingredient);
+  }
+
+  findBy(name: string): Observable<Ingredient[]> {
+    return this.http.get<Ingredient[]>(`${this.API_URL}?name=${encodeURIComponent(name)}`);
   }
 }

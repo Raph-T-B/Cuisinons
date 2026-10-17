@@ -2,10 +2,10 @@ import { IngredientRecette } from "./ingredient-recette";
 import { Note } from "./note";
 
 export interface Recette {
-  id: number;
+  id?: string | number;
   name: string;
   description: string;
   composition: IngredientRecette[];
-  notes : Note[];
+  rates?: Note[];
+  notes?: Note[];
 }
-

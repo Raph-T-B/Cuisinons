@@ -1,0 +1,238 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <!-- Bouton retour -->
+  <div>
+    <a routerLink="/recettes" class="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-orange-600 transition">
+      &larr; Retour à la liste des recettes
+    </a>
+  </div>
+
+  @if (isLoading) {
+    <div class="flex flex-col items-center justify-center py-20 space-y-3">
+      <div class="animate-spin rounded-full h-10 w-10 border-4 border-orange-500 border-t-transparent"></div>
+      <p class="text-sm text-gray-500 font-medium">Chargement de la recette...</p>
+    </div>
+  } @else if (errorMessage || !recipe) {
+    <div class="p-6 bg-red-50 border-l-4 border-red-500 rounded-r-2xl text-red-700">
+      <h3 class="font-bold text-lg">Erreur</h3>
+      <p class="text-sm mt-1">{{ errorMessage || 'Recette introuvable.' }}</p>
+      <a routerLink="/recettes" class="mt-4 inline-block text-xs font-bold text-red-800 underline">
+        Retourner au catalogue
+      </a>
+    </div>
+  } @else {
+    <!-- Carte Principale de la recette -->
+    <article class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+      <!-- En-tête de la recette -->
+      <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-8 sm:p-10 text-white">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="space-y-2">
+            <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold uppercase tracking-wider">
+              Recette #{{ recipe.id }}
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-black tracking-tight">
+              {{ recipe.name }}
+            </h1>
+          </div>
+
+          <!-- Note moyenne -->
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 text-center min-w-[130px]">
+            <div class="text-xs uppercase tracking-wider text-orange-100 font-semibold mb-1">
+              Note moyenne
+            </div>
+            @if (averageRating !== null) {
+              <div class="text-3xl font-black flex items-center justify-center gap-1">
+                <span class="text-yellow-300">★</span>
+                <span>{{ averageRating }}</span>
+                <span class="text-sm font-normal text-orange-100">/ 5</span>
+              </div>
+              <div class="text-[11px] text-orange-100 mt-0.5">
+                {{ reviews.length }} avis
+              </div>
+            } @else {
+              <div class="text-sm font-medium italic text-orange-100">
+                Aucun avis
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Corps : Description & Ingrédients -->
+      <div class="p-6 sm:p-10 space-y-10">
+        <!-- Description -->
+        <div>
+          <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2 mb-3">
+            <span>📝</span> Description & Préparation
+          </h2>
+          <div class="p-5 bg-orange-50/40 rounded-2xl border border-orange-100 text-gray-700 leading-relaxed text-sm sm:text-base whitespace-pre-line">
+            {{ recipe.description }}
+          </div>
+        </div>
+
+        <!-- Ingrédients -->
+        <div>
+          <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2 mb-4">
+            <span>🥕</span> Ingrédients nécessaires
+          </h2>
+
+          @if (!recipe.composition || recipe.composition.length === 0) {
+            <p class="text-sm text-gray-500 italic">Aucun ingrédient renseigné pour cette recette.</p>
+          } @else {
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              @for (item of recipe.composition; track $index) {
+                <div class="flex items-center justify-between p-3.5 bg-gray-50 hover:bg-orange-50/60 rounded-xl border border-gray-200 transition">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-lg">🥣</span>
+                    <span class="text-sm font-bold text-gray-800">
+                      {{ getIngredientName(item.idIngredient || item.ingredientId) }}
+                    </span>
+                  </div>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-white border border-gray-200 text-gray-700 shadow-xs">
+                    Qté : {{ item.quantity }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </article>
+
+    <!-- Section Tous les avis -->
+    <section class="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 sm:p-10 space-y-8">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+        <div>
+          <h2 class="text-2xl font-black text-gray-900 flex items-center gap-2">
+            <span>💬</span> Tous les avis ({{ reviews.length }})
+          </h2>
+          <p class="text-xs text-gray-500 mt-1">
+            Découvrez les retours et évaluations des autres cuisiniers.
+          </p>
+        </div>
+      </div>
+
+      <!-- Liste des avis existants -->
+      @if (reviews.length === 0) {
+        <div class="text-center py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+          <p class="text-sm text-gray-500 italic">
+            Il n'y a pas encore d'avis sur cette recette. Soyez le premier à donner le vôtre ci-dessous !
+          </p>
+        </div>
+      } @else {
+        <div class="space-y-4">
+          @for (review of reviews; track $index) {
+            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-7 h-7 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center font-bold text-xs">
+                    {{ (review.login || review.author || 'U')[0].toUpperCase() }}
+                  </span>
+                  <span class="text-sm font-bold text-gray-800">
+                    {{ review.login || review.author || 'Anonyme' }}
+                  </span>
+                </div>
+
+                <!-- Note en étoiles -->
+                <div class="flex items-center gap-1 text-amber-500 text-sm font-bold bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                  <span>★</span>
+                  <span>{{ review.rate || review.rating }} / 5</span>
+                </div>
+              </div>
+
+              <!-- Commentaire -->
+              <p class="text-sm text-gray-700 pl-9">
+                {{ review.review || review.comment || 'Aucun commentaire.' }}
+              </p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Formulaire d'ajout d'avis -->
+      <div class="pt-6 border-t border-gray-200">
+        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2 mb-4">
+          <span>✍️</span> Ajouter votre avis sur cette recette
+        </h3>
+
+        @if (reviewSuccess) {
+          <div class="p-4 mb-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg text-green-700 text-sm flex items-center gap-2">
+            <span>✅</span>
+            <span>{{ reviewSuccess }}</span>
+          </div>
+        }
+
+        @if (reviewError) {
+          <div class="p-4 mb-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg text-red-700 text-sm flex items-center gap-2">
+            <span>⚠️</span>
+            <span>{{ reviewError }}</span>
+          </div>
+        }
+
+        <form (ngSubmit)="onAddReview()" class="space-y-4 bg-orange-50/30 p-5 rounded-2xl border border-orange-100">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Auteur connecté -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Votre identifiant :</label>
+              <input
+                type="text"
+                [value]="currentUsername"
+                disabled
+                class="w-full px-3.5 py-2 rounded-xl bg-gray-100 border border-gray-300 text-xs text-gray-600 cursor-not-allowed"
+              />
+            </div>
+
+            <!-- Note / Note sur 5 -->
+            <div>
+              <label for="newRate" class="block text-xs font-semibold text-gray-700 mb-1">
+                Votre note (1 à 5) :
+              </label>
+              <select
+                id="newRate"
+                [(ngModel)]="newRate"
+                name="newRate"
+                class="w-full px-3.5 py-2 rounded-xl bg-white border border-gray-300 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold"
+              >
+                <option [value]="5">⭐⭐⭐⭐⭐ 5 / 5 - Excellent</option>
+                <option [value]="4">⭐⭐⭐⭐ 4 / 5 - Très bon</option>
+                <option [value]="3">⭐⭐⭐ 3 / 5 - Correct</option>
+                <option [value]="2">⭐⭐ 2 / 5 - Décevant</option>
+                <option [value]="1">⭐ 1 / 5 - Mauvais</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Avis / Commentaire -->
+          <div>
+            <label for="newReview" class="block text-xs font-semibold text-gray-700 mb-1">
+              Votre avis / commentaire :
+            </label>
+            <textarea
+              id="newReview"
+              rows="3"
+              [(ngModel)]="newReview"
+              name="newReview"
+              placeholder="Donnez vos impressions sur le goût, la texture, les astuces de préparation..."
+              required
+              class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-gray-300 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            ></textarea>
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              type="submit"
+              [disabled]="isSubmittingReview || !newReview.trim()"
+              class="px-5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-2 cursor-pointer"
+            >
+              @if (isSubmittingReview) {
+                <div class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent"></div>
+                <span>Enregistrement...</span>
+              } @else {
+                <span>Publier mon avis</span>
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  }
+</div>

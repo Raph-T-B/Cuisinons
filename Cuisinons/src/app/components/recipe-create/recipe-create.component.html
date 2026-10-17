@@ -1,0 +1,252 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <!-- En-tête -->
+  <div class="border-b border-gray-200 pb-5 flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+        <span>👨‍🍳</span> Créer une nouvelle recette
+      </h1>
+      <p class="text-sm text-gray-500 mt-1">
+        Partagez vos talents culinaires avec la communauté Cuisinons.
+      </p>
+    </div>
+    <a routerLink="/recettes" class="text-sm font-semibold text-gray-500 hover:text-orange-600">
+      &larr; Retour aux recettes
+    </a>
+  </div>
+
+  <!-- Messages d'erreur ou succès -->
+  @if (errorMessage) {
+    <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg text-red-700 text-sm flex items-center gap-2">
+      <span>⚠️</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+  @if (successMessage) {
+    <div class="p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg text-green-700 text-sm flex items-center gap-2">
+      <span>✅</span>
+      <span>{{ successMessage }}</span>
+    </div>
+  }
+
+  <!-- Formulaire principal -->
+  <form (ngSubmit)="onSubmit()" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 space-y-8">
+    
+    <!-- 1. Nom de la recette -->
+    <div>
+      <label for="name" class="block text-sm font-bold text-gray-800 mb-1">
+        Nom de la recette <span class="text-red-500">*</span>
+      </label>
+      <input
+        id="name"
+        type="text"
+        [(ngModel)]="name"
+        name="name"
+        placeholder="Ex: Tarte aux pommes fondante"
+        required
+        class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm text-gray-900"
+      />
+      @if (name && !isNameValid) {
+        <p class="mt-1 text-xs text-red-500">Le nom de la recette ne peut pas être vide.</p>
+      }
+    </div>
+
+    <!-- 2. Description de la recette (30 caractères min) -->
+    <div>
+      <div class="flex justify-between items-center mb-1">
+        <label for="description" class="block text-sm font-bold text-gray-800">
+          Description de la recette <span class="text-red-500">*</span>
+        </label>
+        <span
+          class="text-xs font-semibold px-2 py-0.5 rounded-full"
+          [class.bg-green-100]="isDescriptionValid"
+          [class.text-green-700]="isDescriptionValid"
+          [class.bg-amber-100]="!isDescriptionValid"
+          [class.text-amber-700]="!isDescriptionValid"
+        >
+          {{ description.length }} / 30 caractères min
+        </span>
+      </div>
+      <textarea
+        id="description"
+        rows="4"
+        [(ngModel)]="description"
+        name="description"
+        placeholder="Décrivez les étapes, textures, saveurs ou conseils de préparation... (30 caractères minimum)"
+        required
+        class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm text-gray-900"
+      ></textarea>
+      @if (description && !isDescriptionValid) {
+        <p class="mt-1 text-xs text-amber-600">
+          Encore {{ 30 - description.length }} caractère(s) pour atteindre le minimum de 30 caractères requis.
+        </p>
+      }
+    </div>
+
+    <!-- 3. Ingrédients et quantités (minimum 2 ingrédients) -->
+    <div class="space-y-4 pt-4 border-t border-gray-100">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+            <span>🥕</span> Ingrédients requis <span class="text-red-500">*</span>
+          </h2>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Minimum 2 ingrédients avec leur quantité respective.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span
+            class="text-xs font-semibold px-2.5 py-1 rounded-full"
+            [class.bg-green-100]="hasMinimumIngredients"
+            [class.text-green-700]="hasMinimumIngredients"
+            [class.bg-amber-100]="!hasMinimumIngredients"
+            [class.text-amber-700]="!hasMinimumIngredients"
+          >
+            {{ validIngredients.length }} / 2 requis
+          </span>
+
+          <button
+            type="button"
+            (click)="showNewIngredientModal = !showNewIngredientModal"
+            class="text-xs font-semibold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg border border-orange-200 transition"
+          >
+            + Nouvel ingrédient dans la base
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulaire rapide pour ajouter un nouvel ingrédient à l'API -->
+      @if (showNewIngredientModal) {
+        <div class="p-4 bg-orange-50/70 border border-orange-200 rounded-xl space-y-3">
+          <h4 class="text-xs font-bold text-orange-900 uppercase tracking-wide">
+            Ajouter un ingrédient non listé à l'API :
+          </h4>
+          <div class="flex gap-2">
+            <input
+              type="text"
+              [(ngModel)]="newIngredientName"
+              name="newIngredientName"
+              placeholder="Ex: Sucre vanillé, Basilic..."
+              class="flex-1 px-3 py-1.5 rounded-lg border border-orange-300 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-orange-500"
+            />
+            <button
+              type="button"
+              (click)="onQuickAddIngredient()"
+              [disabled]="!newIngredientName.trim() || isAddingNewIngredient"
+              class="px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-semibold disabled:opacity-50 transition"
+            >
+              {{ isAddingNewIngredient ? 'Ajout...' : 'Créer' }}
+            </button>
+            <button
+              type="button"
+              (click)="showNewIngredientModal = false"
+              class="px-3 py-1.5 text-gray-500 hover:text-gray-700 text-xs"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Liste des lignes d'ingrédients -->
+      <div class="space-y-3">
+        @for (row of compositionRows; track $index) {
+          <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
+            <!-- Sélection de l'ingrédient -->
+            <div class="flex-1">
+              <label class="block text-xs font-medium text-gray-500 mb-1">Ingrédient :</label>
+              <select
+                [(ngModel)]="row.idIngredient"
+                name="ingredient_{{ $index }}"
+                class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required
+              >
+                <option value="" disabled>-- Choisir un ingrédient --</option>
+                @for (ing of availableIngredients; track ing.id) {
+                  <option [value]="ing.id">{{ ing.name }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Quantité -->
+            <div class="w-32">
+              <label class="block text-xs font-medium text-gray-500 mb-1">Quantité :</label>
+              <input
+                type="number"
+                min="1"
+                [(ngModel)]="row.quantity"
+                name="quantity_{{ $index }}"
+                placeholder="Ex: 2"
+                class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required
+              />
+            </div>
+
+            <!-- Bouton supprimer ligne -->
+            <div class="self-end pb-1">
+              <button
+                type="button"
+                (click)="removeIngredientRow($index)"
+                [disabled]="compositionRows.length <= 1"
+                class="p-2 text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                title="Supprimer cette ligne"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Bouton ajouter une ligne -->
+      <button
+        type="button"
+        (click)="addIngredientRow()"
+        class="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 hover:text-orange-700 hover:underline py-1"
+      >
+        <span>+ Ajouter un autre ingrédient</span>
+      </button>
+    </div>
+
+    <!-- Récapitulatif des règles de validation -->
+    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 space-y-2">
+      <p class="text-xs font-bold text-gray-700 uppercase tracking-wider">Critères de validation :</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+        <div class="flex items-center gap-1.5" [class.text-green-600]="isNameValid" [class.text-gray-400]="!isNameValid">
+          <span>{{ isNameValid ? '✓' : '○' }}</span>
+          <span>1 nom renseigné</span>
+        </div>
+        <div class="flex items-center gap-1.5" [class.text-green-600]="isDescriptionValid" [class.text-gray-400]="!isDescriptionValid">
+          <span>{{ isDescriptionValid ? '✓' : '○' }}</span>
+          <span>Description &ge; 30 caractères</span>
+        </div>
+        <div class="flex items-center gap-1.5" [class.text-green-600]="hasMinimumIngredients" [class.text-gray-400]="!hasMinimumIngredients">
+          <span>{{ hasMinimumIngredients ? '✓' : '○' }}</span>
+          <span>&ge; 2 quantités d'ingrédients</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+      <a
+        routerLink="/recettes"
+        class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-sm font-semibold hover:bg-gray-50 transition"
+      >
+        Annuler
+      </a>
+      <button
+        type="submit"
+        [disabled]="!isFormValid || isSubmitting"
+        class="px-6 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold shadow disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-2 cursor-pointer"
+      >
+        @if (isSubmitting) {
+          <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+          <span>Création en cours...</span>
+        } @else {
+          <span>Publier la recette</span>
+        }
+      </button>
+    </div>
+  </form>
+</div>

@@ -4,61 +4,91 @@ import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/auth.guest';
 import { LoginComponent } from './components/login/login-component';
 import { HomeComponent } from './components/home/home-component';
+import { RecipeListComponent } from './components/recipe-list/recipe-list.component';
+import { RecipeCreateComponent } from './components/recipe-create/recipe-create.component';
+import { RecipeDetailComponent } from './components/recipe-detail/recipe-detail.component';
 import { NotFound } from './components/not-found/not-found';
 import { AuthentificationService } from './services/authentification-service';
-// import { RecipeListComponent } from './components/recipe-list/recipe-list.component';
-// import { RecipeCreateComponent } from './components/recipe-create/recipe-create.component';
-// import { RecipeDetailComponent } from './components/recipe-detail/recipe-detail.component';
 
 export const routes: Routes = [
-  // Route par défaut quand non connecté
+  // Redirection de la racine vers l'accueil
   {
     path: '',
-    component: LoginComponent,
-    canActivate:[guestGuard],
-    title: 'Connexion'
+    pathMatch: 'full',
+    redirectTo: 'accueil'
   },
 
-  // Routes protégées par la connection
+  // Page de connexion
   {
-    path: 'acceuil',
+    path: 'connexion',
+    component: LoginComponent,
+    canActivate: [guestGuard],
+    title: 'Connexion - Cuisinons'
+  },
+  {
+    path: 'login',
+    redirectTo: 'connexion'
+  },
+
+  // Page d'accueil (5 dernières recettes)
+  {
+    path: 'accueil',
     component: HomeComponent,
     canActivate: [authGuard],
-    title: 'Accueil'
+    title: 'Accueil - Cuisinons'
   },
-  // {
-  //   path: 'recettes',
-  //   component: ListeRecetteComponent,
-  //   canActivate: [authGuard],
-  //   title: 'Toutes les Recettes'
-  // },
-  // {
-  //   path: 'recette/ajout',
-  //   component: CreerRecetteComponent,
-  //   canActivate: [authGuard],
-  //   title: 'Créer une Recette'
-  // },
-  // {
-  //   path: 'recette/:id',
-  //   component: DetailRecetteComponent,
-  //   canActivate: [authGuard],
-  //   title: 'Détail de la Recette'
-  // },
-  // Redirection par défaut si URL inconnue
+  {
+    path: 'acceuil',
+    redirectTo: 'accueil'
+  },
+
+  // Page listant toutes les recettes avec pagination et recherche
+  {
+    path: 'recettes',
+    component: RecipeListComponent,
+    canActivate: [authGuard],
+    title: 'Toutes les recettes - Cuisinons'
+  },
+
+  // Page de création d'une recette
+  {
+    path: 'recette/ajout',
+    component: RecipeCreateComponent,
+    canActivate: [authGuard],
+    title: 'Créer une recette - Cuisinons'
+  },
+  {
+    path: 'recettes/creer',
+    redirectTo: 'recette/ajout'
+  },
+
+  // Page de détail d'une recette
+  {
+    path: 'recette/:id',
+    component: RecipeDetailComponent,
+    canActivate: [authGuard],
+    title: 'Détail de la recette - Cuisinons'
+  },
+  {
+    path: 'recettes/:id',
+    component: RecipeDetailComponent,
+    canActivate: [authGuard],
+    title: 'Détail de la recette - Cuisinons'
+  },
+
+  // Page 404
   {
     path: '404',
     component: NotFound,
-    canActivate: [authGuard],
-    title: 'Page non trouvée'
+    title: 'Page non trouvée - Cuisinons'
   },
 
-  // 3. Route Wildcard '**' avec redirection dynamique
+  // Route Wildcard
   {
     path: '**',
     redirectTo: () => {
       const authService = inject(AuthentificationService);
-      // Connecté -> 404 | Non connecté -> login
-      return authService.isLoggedIn() ? '/404' : '/login';
+      return authService.isLoggedIn() ? '/404' : '/connexion';
     }
   }
 ];

@@ -1,5 +1,8 @@
 export interface Note {
-  rating: number; // ex: 1 à 5
-  comment?: string;
+  login?: string;
   author?: string;
+  rate?: number;
+  rating?: number;
+  review?: string;
+  comment?: string;
 }

@@ -1,9 +1,57 @@
 @if (authServ.isAuthenticated$ | async) {
-  <nav>
-    <a routerLink="/">Accueil</a> |
-    <!-- <a routerLink="/recipes">Toutes les recettes</a> |
-    <a routerLink="/recipes/new">Ajouter une recette</a> |
-    <button type="button" (click)="authServ.logout()">Déconnexion</button> -->
-    <button type="button" (click)="onLogout()">Déconnexion</button>
-  </nav>
+  <header class="bg-white border-b border-orange-100 shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo / Marque -->
+        <div class="flex items-center space-x-3">
+          <a routerLink="/accueil" class="flex items-center gap-2 text-2xl font-black text-orange-600 hover:text-orange-700 transition">
+            <span class="text-3xl">🍳</span>
+            <span class="tracking-tight">Cuisinons</span>
+          </a>
+
+          <!-- Liens de navigation principaux -->
+          <nav class="hidden md:flex ml-8 space-x-2">
+            <a routerLink="/accueil" routerLinkActive="bg-orange-50 text-orange-700 font-semibold"
+               class="px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition">
+              Accueil
+            </a>
+            <a routerLink="/recettes" routerLinkActive="bg-orange-50 text-orange-700 font-semibold"
+               class="px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition">
+              Toutes les recettes
+            </a>
+            <a routerLink="/recette/ajout" routerLinkActive="bg-orange-50 text-orange-700 font-semibold"
+               class="px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition">
+              + Créer une recette
+            </a>
+          </nav>
+        </div>
+
+        <!-- Section utilisateur & Déconnexion -->
+        <div class="flex items-center space-x-4">
+          <div class="hidden sm:flex items-center gap-2 bg-orange-50 text-orange-800 text-xs font-medium px-3 py-1.5 rounded-full border border-orange-200">
+            <span>👤</span>
+            <span class="font-semibold">{{ username }}</span>
+          </div>
+          <button
+            type="button"
+            (click)="onLogout()"
+            class="inline-flex items-center gap-2 px-3.5 py-1.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg border border-red-200 transition"
+            title="Se déconnecter"
+          >
+            <span>Se déconnecter</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Liens mobiles -->
+      <div class="md:hidden flex space-x-2 pb-3 border-t border-gray-100 pt-2">
+        <a routerLink="/accueil" routerLinkActive="bg-orange-100 text-orange-700" class="text-xs px-2.5 py-1.5 rounded text-gray-700">Accueil</a>
+        <a routerLink="/recettes" routerLinkActive="bg-orange-100 text-orange-700" class="text-xs px-2.5 py-1.5 rounded text-gray-700">Toutes les recettes</a>
+        <a routerLink="/recette/ajout" routerLinkActive="bg-orange-100 text-orange-700" class="text-xs px-2.5 py-1.5 rounded text-gray-700">+ Créer</a>
+      </div>
+    </div>
+  </header>
 }
