@@ -1,28 +1,28 @@
 
 <h1>Accueil</h1>
 <h2>Les 5 dernières recettes</h2>
-<!--
+
 @if (isLoading) {
   <p>Chargement des recettes...</p>
 } @else if (errorMessage) {
   <p>{{ errorMessage }}</p>
-} @else if (recipes.length === 0) {
+} @else if (recettes.length === 0) {
   <p>Aucune recette trouvée.</p>
 } @else {
   <ul>
-    @for (recipe of recipes; track recipe.id) {
+    @for (recette of recettes; track recette.id) {
       <li>
         <h3>
-          <a [routerLink]="['/recipes', recipe.id]">{{ recipe.name }}</a>
+          <a [routerLink]="['/recette', recette.id]">{{ recette.name }}</a>
         </h3>
 
-         Utilisation directe du Pipe Truncate à 15 caractères
-        <p>Description : {{ recipe.description | truncate:15 }}</p>
+         <!-- Utilisation directe du Pipe Truncate à 15 caractères -->
+        <p>Description : {{ recette.description | truncate:15 }}</p>
 
         <p>
           Note moyenne :
-          @if (getAverageRating(recipe) !== null) {
-            {{ getAverageRating(recipe) }} / 5
+          @if (getMoyenneNotes(recette) !== null) {
+            {{ getMoyenneNotes(recette) }} / 5
           } @else {
             Aucun avis
           }
@@ -30,4 +30,4 @@
       </li>
     }
   </ul>
-} -->
+}

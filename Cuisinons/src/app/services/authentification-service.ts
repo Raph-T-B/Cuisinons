@@ -41,7 +41,7 @@ export class AuthentificationService {
   logout(): void {
     localStorage.removeItem(this.STORAGE_KEY);
     this.isAuthenticatedSubject.next(false);
-    this.router.navigate(['/connexion']);
+    this.router.navigate(['/']);
   }
 
   isLoggedIn(): boolean {
