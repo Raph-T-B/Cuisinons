@@ -1,0 +1,9 @@
+@if (authServ.isAuthenticated$ | async) {
+  <nav>
+    <a routerLink="/">Accueil</a> |
+    <!-- <a routerLink="/recipes">Toutes les recettes</a> |
+    <a routerLink="/recipes/new">Ajouter une recette</a> |
+    <button type="button" (click)="authServ.logout()">Déconnexion</button> -->
+    <button type="button" (click)="onLogout()">Déconnexion</button>
+  </nav>
+}
