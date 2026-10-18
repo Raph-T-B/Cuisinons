@@ -68,4 +68,17 @@ describe('RecipeCreateComponent', () => {
     expect(component.availableIngredients.some(ing => ing.name === 'Tomate')).toBe(true);
     expect(component.showNewIngredientModal).toBe(false);
   });
+
+  it('should correctly select ingredients independently on different rows', () => {
+    // Sélection du 2ème ingrédient sur la 1ère ligne
+    component.selectIngredient(0, { id: '2', name: 'Steak' });
+    // Sélection du 1er ingrédient sur la 2ème ligne
+    component.selectIngredient(1, { id: '1', name: 'Pain' });
+
+    expect(component.compositionRows[0].idIngredient).toBe('2');
+    expect(component.compositionRows[0].searchTerm).toBe('Steak');
+
+    expect(component.compositionRows[1].idIngredient).toBe('1');
+    expect(component.compositionRows[1].searchTerm).toBe('Pain');
+  });
 });

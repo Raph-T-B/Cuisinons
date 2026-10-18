@@ -111,7 +111,7 @@
 
   <!-- 1. Liste des ingrédients de la recette -->
   <div class="space-y-3">
-    @for (row of compositionRows; track $index) {
+    @for (row of compositionRows; track row; let rowIndex = $index) {
       <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
         <!-- Choix de l'ingrédient -->
 
@@ -122,9 +122,9 @@
     type="text"
     [(ngModel)]="row.searchTerm"
     (focus)="row.isOpen = true"
-    (blur)="closeDropdownWithDelay($index)"
+    (blur)="closeDropdownWithDelay(rowIndex)"
     (input)="row.isOpen = true; row.idIngredient = ''"
-    name="ingredient_search_{{ $index }}"
+    name="ingredient_search_{{ rowIndex }}"
     placeholder="Taper pour chercher un ingrédient..."
     autocomplete="off"
     class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -134,10 +134,10 @@
   <!-- Menu déroulant des suggestions restantes -->
   @if (row.isOpen) {
     <div class="absolute z-20 left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
-      @for (ing of getFilteredIngredientsForRow($index); track ing.id) {
+      @for (ing of getFilteredIngredientsForRow(rowIndex); track ing.id) {
         <button
           type="button"
-          (mousedown)="selectIngredient($index, ing)"
+          (mousedown)="selectIngredient(rowIndex, ing)"
           class="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition flex items-center justify-between"
         >
           <span>{{ ing.name }}</span>
@@ -158,7 +158,7 @@
             type="number"
             min="1"
             [(ngModel)]="row.quantity"
-            name="quantity_{{ $index }}"
+            name="quantity_{{ rowIndex }}"
             placeholder="Ex: 2"
             class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
             required
@@ -169,7 +169,7 @@
         <div class="self-end pb-1">
           <button
             type="button"
-            (click)="removeIngredientRow($index)"
+            (click)="removeIngredientRow(rowIndex)"
             [disabled]="compositionRows.length <= 1"
             class="p-2 text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition"
             title="Supprimer cette ligne"
