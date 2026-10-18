@@ -13,8 +13,7 @@ Par Matteo et Raphaël
 2. [Adaptations et Améliorations Apportées](#-adaptations-et-améliorations-apportées)
 3. [Architecture et Arborescence](#-architecture-et-arborescence)
 4. [Modèle de Données & Règles Métier](#-modèle-de-données--règles-métier)
-5. [Endpoints API Utilisés](#-endpoints-api-utilisés)
-6. [Installation et Démarrage](#-installation-et-démarrage)
+5. [Installation et Démarrage](#-installation-et-démarrage)
 
 ---
 
