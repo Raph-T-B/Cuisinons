@@ -1,38 +1,43 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TruncatePipe } from '../../pipes/truncate-pipe';
-import { RecipeService } from '../../../services/recipe.service';
-import { Recipe } from '../../../models/recipe.model';
+import { RecettesService } from '../../services/RecettesService';
+import { Recette } from '../../models/recettes';
 
 @Component({
   selector: 'app-home-component',
   standalone: true,
-  imports: [RouterLink, TruncatePipe], // Ajouté ici
+  imports: [RouterLink, TruncatePipe],
   templateUrl: './home-component.html',
   styleUrl: './home-component.css'
 })
 export class HomeComponent implements OnInit {
-  recipes: Recipe[] = [];
+  recettes: Recette[] = [];
   isLoading = true;
   errorMessage = '';
 
-  constructor(private recipeService: RecipeService) {}
+  constructor(
+    private recettesServ: RecettesService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    this.recipeService.getLatestRecipes().subscribe({
+    this.recettesServ.getLatestRecipes(5).subscribe({
       next: (data) => {
-        this.recipes = data;
+        this.recettes = data;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Erreur API:', err);
-        this.errorMessage = 'Impossible de charger les recettes.';
+        this.errorMessage = 'Impossible de charger les recettes pour le moment.';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
-  getAverageRating(recipe: Recipe): number | null {
-    return this.recipeService.calculateAverageRating(recipe.reviews);
+  getMoyenneNotes(recipe: Recette): number | null {
+    return this.recettesServ.getRecipeAverage(recipe);
   }
 }
