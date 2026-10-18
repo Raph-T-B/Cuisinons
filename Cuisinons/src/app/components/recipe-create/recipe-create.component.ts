@@ -179,15 +179,20 @@ compositionRows: CompositionFormRow[] = [
     this.isAddingNewIngredient = true;
     this.ingredientsServ.addIngredients({ name: nameTrimmed }).subscribe({
       next: (created) => {
-        // 1. Ajouter au catalogue local
+        // 1. Ajouter au catalogue local et trier
         this.availableIngredients.push(created);
+        this.availableIngredients.sort((a, b) =>
+          a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
+        );
 
         // 2. L'affecter directement à la recette (sur une ligne vide ou une nouvelle ligne)
         const emptyRow = this.compositionRows.find(r => r.idIngredient === '');
         if (emptyRow) {
           emptyRow.idIngredient = created.id;
+          emptyRow.searchTerm = created.name;
+          emptyRow.isOpen = false;
         } else {
-          this.compositionRows.push({ idIngredient: created.id, quantity: 1 });
+          this.compositionRows.push({ idIngredient: created.id, quantity: 1, searchTerm: created.name, isOpen: false });
         }
 
         // 3. Réinitialiser et fermer le sous-formulaire
@@ -196,7 +201,6 @@ compositionRows: CompositionFormRow[] = [
         this.showNewIngredientModal = false;
         this.isAddingNewIngredient = false;
         this.cdr.markForCheck();
-        this.loadIngredients();
 
       },
       error: (err) => {
