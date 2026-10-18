@@ -224,6 +224,7 @@ addIngredientRow(): void {
 // 2. Filtre selon le texte tapé dans l'input
 getFilteredIngredientsForRow(currentIndex: number): Ingredient[] {
   const row = this.compositionRows[currentIndex];
+  if (!row) return [];
 
   // IDs pris sur les autres lignes
   const otherSelectedIds = this.compositionRows
@@ -236,9 +237,10 @@ getFilteredIngredientsForRow(currentIndex: number): Ingredient[] {
     ing => !otherSelectedIds.includes(String(ing.id))
   );
 
-  // Filtre textuel si l'utilisateur tape quelque chose
+  // Filtre textuel si l'utilisateur tape quelque chose (sauf si c'est déjà l'ingrédient sélectionné)
+  const currentSelected = this.availableIngredients.find(i => String(i.id) === String(row.idIngredient));
   const term = (row.searchTerm || '').trim().toLowerCase();
-  if (term) {
+  if (term && (!currentSelected || term !== currentSelected.name.toLowerCase())) {
     list = list.filter(ing => ing.name.toLowerCase().includes(term));
   }
 
@@ -247,6 +249,7 @@ getFilteredIngredientsForRow(currentIndex: number): Ingredient[] {
 
 // Sélection d'un ingrédient dans la liste déroulante
 selectIngredient(rowIndex: number, ing: Ingredient): void {
+  if (!this.compositionRows[rowIndex]) return;
   this.compositionRows[rowIndex].idIngredient = ing.id;
   this.compositionRows[rowIndex].searchTerm = ing.name;
   this.compositionRows[rowIndex].isOpen = false;
@@ -256,6 +259,7 @@ selectIngredient(rowIndex: number, ing: Ingredient): void {
 // Fermeture avec léger délai pour permettre le clic sur une option
 closeDropdownWithDelay(rowIndex: number): void {
   setTimeout(() => {
+    if (!this.compositionRows[rowIndex]) return;
     this.compositionRows[rowIndex].isOpen = false;
     // Si l'utilisateur a tapé n'importe quoi sans sélectionner, on remet le vrai nom sélectionné
     const currentId = this.compositionRows[rowIndex].idIngredient;
