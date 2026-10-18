@@ -4,6 +4,7 @@ Projet d'application web réalisé avec **Angular** dans le cadre du TP noté.
 L'application permet la consultation, la recherche, la création et l'évaluation communautaire de recettes culinaires via une API REST (MockAPI).
 
 Par Matteo et Raphaël
+
 ---
 
 ## 📋 Table des Matières
@@ -72,6 +73,9 @@ Par rapport aux exigences initiales du sujet, plusieurs optimisations techniques
 5. **Impossible d'ajouter un ingrédient existant** :
    - Check dans l'api si un ingrédient du même nom est déjà existant (non sensible à la casse)
 
+6. ** Quelques tests unitaires sur certains composants**
+   - Tests présents nottaments sur les composants 'Recipe-details', 'recipe-list' et 'recipe-create'
+   
 ---
 
 ## 📂 Architecture et Arborescence
