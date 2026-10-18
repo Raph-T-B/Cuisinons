@@ -37,6 +37,7 @@ export class RecipeCreateComponent implements OnInit {
   showNewIngredientModal: boolean = false;
   newIngredientName: string = '';
   isAddingNewIngredient: boolean = false;
+  newIngredientError: string = '';
 
   constructor(
     private recettesServ: RecettesService,
@@ -143,19 +144,34 @@ export class RecipeCreateComponent implements OnInit {
 
   // Création rapide d'un ingrédient
   onQuickAddIngredient(): void {
-    if (!this.newIngredientName.trim()) return;
+    const nameTrimmed = this.newIngredientName.trim();
+    if (!nameTrimmed) return;
 
+    // Vérifier si l'ingrédient existe déjà dans la liste issue de l'API (comparaison du nom insensible à la casse)
+    const alreadyExists = this.availableIngredients.some(
+      (ing) => ing.name?.trim().toLowerCase() === nameTrimmed.toLowerCase()
+    );
+
+    if (alreadyExists) {
+      this.newIngredientError = `L'ingrédient "${nameTrimmed}" existe déjà.`;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.newIngredientError = '';
     this.isAddingNewIngredient = true;
-    this.ingredientsServ.addIngredients({ name: this.newIngredientName.trim() }).subscribe({
+    this.ingredientsServ.addIngredients({ name: nameTrimmed }).subscribe({
       next: (created) => {
         this.availableIngredients.push(created);
         this.newIngredientName = '';
+        this.newIngredientError = '';
         this.showNewIngredientModal = false;
         this.isAddingNewIngredient = false;
         this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Erreur ajout ingrédient:', err);
+        this.newIngredientError = err?.error?.message || "Une erreur est survenue lors de l'ajout de l'ingrédient.";
         this.isAddingNewIngredient = false;
         this.cdr.markForCheck();
       }
