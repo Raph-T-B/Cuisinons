@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -41,7 +41,8 @@ export class RecipeCreateComponent implements OnInit {
   constructor(
     private recettesServ: RecettesService,
     private ingredientsServ: IngredientsService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -53,11 +54,13 @@ export class RecipeCreateComponent implements OnInit {
       next: (data) => {
         this.availableIngredients = data;
         this.isLoadingIngredients = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Erreur chargement ingrédients:', err);
         this.errorMessage = 'Impossible de charger la liste des ingrédients.';
         this.isLoadingIngredients = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -106,6 +109,7 @@ export class RecipeCreateComponent implements OnInit {
       } else if (!this.hasMinimumIngredients) {
         this.errorMessage = 'Vous devez renseigner au moins 2 ingrédients avec une quantité valide (> 0).';
       }
+      this.cdr.markForCheck();
       return;
     }
 
@@ -123,6 +127,7 @@ export class RecipeCreateComponent implements OnInit {
       next: (created) => {
         this.isSubmitting = false;
         this.successMessage = 'Recette créée avec succès ! Redirection en cours...';
+        this.cdr.markForCheck();
         setTimeout(() => {
           this.router.navigate(['/recette', created.id]);
         }, 1200);
@@ -131,6 +136,7 @@ export class RecipeCreateComponent implements OnInit {
         console.error('Erreur création recette:', err);
         this.errorMessage = 'Une erreur est survenue lors de la création de la recette.';
         this.isSubmitting = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -146,10 +152,12 @@ export class RecipeCreateComponent implements OnInit {
         this.newIngredientName = '';
         this.showNewIngredientModal = false;
         this.isAddingNewIngredient = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Erreur ajout ingrédient:', err);
         this.isAddingNewIngredient = false;
+        this.cdr.markForCheck();
       }
     });
   }

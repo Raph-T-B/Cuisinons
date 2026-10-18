@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -35,14 +35,16 @@ export class RecipeDetailComponent implements OnInit {
     private titleService: Title,
     private recettesServ: RecettesService,
     private ingredientsServ: IngredientsService,
-    public authServ: AuthentificationService
+    public authServ: AuthentificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot?.paramMap?.get('id');
     if (!id) {
       this.errorMessage = 'Identifiant de recette manquant.';
       this.isLoading = false;
+      this.cdr.markForCheck();
       return;
     }
 
@@ -50,6 +52,7 @@ export class RecipeDetailComponent implements OnInit {
     this.ingredientsServ.list().subscribe({
       next: (ingredients) => {
         this.ingredients = ingredients;
+        this.cdr.markForCheck();
       },
       error: (err) => console.error('Erreur chargement ingrédients:', err)
     });
@@ -62,11 +65,13 @@ export class RecipeDetailComponent implements OnInit {
         if (data.name) {
           this.titleService.setTitle(`${data.name} - Cuisinons`);
         }
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Erreur API recette:', err);
         this.errorMessage = 'Impossible de charger la recette demandée.';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -95,10 +100,12 @@ export class RecipeDetailComponent implements OnInit {
     if (!this.recipe?.id) return;
     if (!this.newReview.trim()) {
       this.reviewError = 'Veuillez saisir un commentaire pour votre avis.';
+      this.cdr.markForCheck();
       return;
     }
     if (this.newRate < 1 || this.newRate > 5) {
       this.reviewError = 'La note doit être comprise entre 1 et 5.';
+      this.cdr.markForCheck();
       return;
     }
 
@@ -126,11 +133,13 @@ export class RecipeDetailComponent implements OnInit {
         this.reviewSuccess = 'Votre avis a été publié avec succès !';
         this.newReview = '';
         this.newRate = 5;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Erreur ajout avis:', err);
         this.reviewError = 'Une erreur est survenue lors de l\'enregistrement de votre avis.';
         this.isSubmittingReview = false;
+        this.cdr.markForCheck();
       }
     });
   }

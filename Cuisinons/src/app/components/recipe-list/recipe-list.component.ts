@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -21,18 +21,23 @@ export class RecipeListComponent implements OnInit {
   isLoading: boolean = true;
   errorMessage: string = '';
 
-  constructor(private recettesServ: RecettesService) {}
+  constructor(
+    private recettesServ: RecettesService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.recettesServ.liste().subscribe({
       next: (data) => {
         this.recipes = data;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Erreur API recettes:', err);
         this.errorMessage = 'Impossible de charger la liste des recettes.';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
