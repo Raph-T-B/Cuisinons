@@ -30,7 +30,7 @@
 
   <!-- Formulaire principal -->
   <form (ngSubmit)="onSubmit()" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 space-y-8">
-    
+
     <!-- 1. Nom de la recette -->
     <div>
       <label for="name" class="block text-sm font-bold text-gray-800 mb-1">
@@ -84,138 +84,175 @@
 
     <!-- 3. Ingrédients et quantités (minimum 2 ingrédients) -->
     <div class="space-y-4 pt-4 border-t border-gray-100">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
-            <span>🥕</span> Ingrédients requis <span class="text-red-500">*</span>
-          </h2>
-          <p class="text-xs text-gray-500 mt-0.5">
-            Minimum 2 ingrédients avec leur quantité respective.
-          </p>
+  <!-- En-tête de la section Ingrédients -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <div>
+      <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+        <span>🥕</span> Ingrédients requis <span class="text-red-500">*</span>
+      </h2>
+      <p class="text-xs text-gray-500 mt-0.5">
+        Minimum 2 ingrédients avec leur quantité respective.
+      </p>
+    </div>
+
+    <!-- Badge compteur de validation -->
+    <div>
+      <span
+        class="text-xs font-semibold px-2.5 py-1 rounded-full"
+        [class.bg-green-100]="hasMinimumIngredients"
+        [class.text-green-700]="hasMinimumIngredients"
+        [class.bg-amber-100]="!hasMinimumIngredients"
+        [class.text-amber-700]="!hasMinimumIngredients"
+      >
+        {{ validIngredients.length }} / 2 requis
+      </span>
+    </div>
+  </div>
+
+  <!-- 1. Liste des ingrédients de la recette -->
+  <div class="space-y-3">
+    @for (row of compositionRows; track $index) {
+      <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
+        <!-- Choix de l'ingrédient -->
+
+<div class="flex-1 relative">
+  <label class="block text-xs font-medium text-gray-500 mb-1">Ingrédient :</label>
+
+  <input
+    type="text"
+    [(ngModel)]="row.searchTerm"
+    (focus)="row.isOpen = true"
+    (blur)="closeDropdownWithDelay($index)"
+    (input)="row.isOpen = true; row.idIngredient = ''"
+    name="ingredient_search_{{ $index }}"
+    placeholder="Taper pour chercher un ingrédient..."
+    autocomplete="off"
+    class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+    required
+  />
+
+  <!-- Menu déroulant des suggestions restantes -->
+  @if (row.isOpen) {
+    <div class="absolute z-20 left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
+      @for (ing of getFilteredIngredientsForRow($index); track ing.id) {
+        <button
+          type="button"
+          (mousedown)="selectIngredient($index, ing)"
+          class="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition flex items-center justify-between"
+        >
+          <span>{{ ing.name }}</span>
+        </button>
+      } @empty {
+        <div class="px-3 py-2 text-xs text-gray-400 italic">
+          Aucun ingrédient correspondant ou restant
+        </div>
+      }
+    </div>
+  }
+</div>
+
+        <!-- Quantité -->
+        <div class="w-32">
+          <label class="block text-xs font-medium text-gray-500 mb-1">Quantité :</label>
+          <input
+            type="number"
+            min="1"
+            [(ngModel)]="row.quantity"
+            name="quantity_{{ $index }}"
+            placeholder="Ex: 2"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            required
+          />
         </div>
 
-        <div class="flex items-center gap-2">
-          <span
-            class="text-xs font-semibold px-2.5 py-1 rounded-full"
-            [class.bg-green-100]="hasMinimumIngredients"
-            [class.text-green-700]="hasMinimumIngredients"
-            [class.bg-amber-100]="!hasMinimumIngredients"
-            [class.text-amber-700]="!hasMinimumIngredients"
-          >
-            {{ validIngredients.length }} / 2 requis
-          </span>
-
+        <!-- Bouton supprimer la ligne -->
+        <div class="self-end pb-1">
           <button
             type="button"
-            (click)="showNewIngredientModal = !showNewIngredientModal; newIngredientError = ''"
-            class="text-xs font-semibold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg border border-orange-200 transition"
+            (click)="removeIngredientRow($index)"
+            [disabled]="compositionRows.length <= 1"
+            class="p-2 text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            title="Supprimer cette ligne"
           >
-            + Nouvel ingrédient dans la base
+            🗑️
           </button>
         </div>
       </div>
+    }
+  </div>
 
-      <!-- Formulaire rapide pour ajouter un nouvel ingrédient à l'API -->
-      @if (showNewIngredientModal) {
-        <div class="p-4 bg-orange-50/70 border border-orange-200 rounded-xl space-y-3">
-          <h4 class="text-xs font-bold text-orange-900 uppercase tracking-wide">
-            Ajouter un ingrédient non listé à l'API :
-          </h4>
-          @if (newIngredientError) {
-            <div class="p-2.5 bg-red-50 border-l-4 border-red-500 rounded-r-lg text-red-700 text-xs flex items-center gap-2">
-              <span>⚠️</span>
-              <span>{{ newIngredientError }}</span>
-            </div>
-          }
-          <div class="flex gap-2">
-            <input
-              type="text"
-              [(ngModel)]="newIngredientName"
-              name="newIngredientName"
-              (input)="newIngredientError = ''"
-              placeholder="Ex: Sucre vanillé, Basilic..."
-              class="flex-1 px-3 py-1.5 rounded-lg border border-orange-300 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-orange-500"
-            />
+  <!-- Vrai bouton d'action pour ajouter une nouvelle ligne à la recette -->
+  <div>
+    <button
+      type="button"
+      (click)="addIngredientRow()"
+      class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold text-xs rounded-xl border border-dashed border-orange-300 transition"
+    >
+      <span class="text-sm font-bold leading-none">+</span>
+      <span>Ajouter un autre ingrédient</span>
+    </button>
+  </div>
+
+  <!-- 2. Section séparée : Création d'un ingrédient inexistant dans l'API globale -->
+  <div class="pt-4  space-y-3">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div>
+        <p class="text-s font-semibold text-gray-800">
+          Ingrédient non disponible ? Soyez le premier à l'ajouter !
+        </p>
+        <p class="text-[11px] text-gray-500">
+          Enregistre un ingrédient inédit dans le catalogue pour l'utiliser ensuite.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        (click)="showNewIngredientModal = !showNewIngredientModal"
+        class="text-xs font-semibold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg border border-orange-200 transition self-start sm:self-auto"
+      >
+        {{ showNewIngredientModal ? 'Fermer l\'ajout' : '+ Créer un ingrédient inédit' }}
+      </button>
+    </div>
+
+    <!-- Formulaire contextuel de création vers l'API -->
+    @if (showNewIngredientModal) {
+      <div class="p-4 bg-orange-50/70 border border-orange-200 rounded-xl space-y-3">
+        <h4 class="text-xs font-bold text-orange-900 uppercase tracking-wide">
+          Ajouter un ingrédient au catalogue global :
+        </h4>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input
+            type="text"
+            [(ngModel)]="newIngredientName"
+            name="newIngredientName"
+            placeholder="Ex: Sucre vanillé, Basilic..."
+            class="flex-1 px-3 py-1.5 rounded-lg border border-orange-300 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-orange-500"
+          />
+          <div class="flex items-center gap-2">
             <button
               type="button"
               (click)="onQuickAddIngredient()"
               [disabled]="!newIngredientName.trim() || isAddingNewIngredient"
-              class="px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-semibold disabled:opacity-50 transition"
+              class="flex-1 sm:flex-none px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-semibold disabled:opacity-50 transition"
             >
               {{ isAddingNewIngredient ? 'Ajout...' : 'Créer' }}
             </button>
             <button
               type="button"
-              (click)="showNewIngredientModal = false; newIngredientError = ''"
+              (click)="showNewIngredientModal = false"
               class="px-3 py-1.5 text-gray-500 hover:text-gray-700 text-xs"
             >
               Annuler
             </button>
           </div>
         </div>
-      }
-
-      <!-- Liste des lignes d'ingrédients -->
-      <div class="space-y-3">
-        @for (row of compositionRows; track $index) {
-          <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
-            <!-- Sélection de l'ingrédient -->
-            <div class="flex-1">
-              <label class="block text-xs font-medium text-gray-500 mb-1">Ingrédient :</label>
-              <select
-                [(ngModel)]="row.idIngredient"
-                name="ingredient_{{ $index }}"
-                class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                required
-              >
-                <option value="" disabled>-- Choisir un ingrédient --</option>
-                @for (ing of availableIngredients; track ing.id) {
-                  <option [value]="ing.id">{{ ing.name }}</option>
-                }
-              </select>
-            </div>
-
-            <!-- Quantité -->
-            <div class="w-32">
-              <label class="block text-xs font-medium text-gray-500 mb-1">Quantité :</label>
-              <input
-                type="number"
-                min="1"
-                [(ngModel)]="row.quantity"
-                name="quantity_{{ $index }}"
-                placeholder="Ex: 2"
-                class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                required
-              />
-            </div>
-
-            <!-- Bouton supprimer ligne -->
-            <div class="self-end pb-1">
-              <button
-                type="button"
-                (click)="removeIngredientRow($index)"
-                [disabled]="compositionRows.length <= 1"
-                class="p-2 text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                title="Supprimer cette ligne"
-              >
-                🗑️
-              </button>
-            </div>
-          </div>
-        }
       </div>
-
-      <!-- Bouton ajouter une ligne -->
-      <button
-        type="button"
-        (click)="addIngredientRow()"
-        class="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 hover:text-orange-700 hover:underline py-1"
-      >
-        <span>+ Ajouter un autre ingrédient</span>
-      </button>
-    </div>
+    }
+  </div>
+</div>
 
     <!-- Récapitulatif des règles de validation -->
+    <div class="border-t border-gray-200/80"></div>
     <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 space-y-2">
       <p class="text-xs font-bold text-gray-700 uppercase tracking-wider">Critères de validation :</p>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">

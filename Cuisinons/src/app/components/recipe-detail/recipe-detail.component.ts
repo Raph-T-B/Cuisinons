@@ -68,6 +68,7 @@ export class RecipeDetailComponent implements OnInit {
         this.cdr.markForCheck();
       },
       error: (err) => {
+        this.titleService.setTitle(`Recette inexistante`);
         console.error('Erreur API recette:', err);
         this.errorMessage = 'Impossible de charger la recette demandée.';
         this.isLoading = false;
