@@ -1,6 +1,5 @@
 export interface IngredientRecette {
-  idIngredient?: number | string;
-  ingredientId?: number | string;
+  idIngredient: number | string;
   quantity: number;
   name?: string;
 }
