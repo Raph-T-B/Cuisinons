@@ -51,4 +51,21 @@ describe('RecipeCreateComponent', () => {
     expect(component.hasMinimumIngredients).toBe(true);
     expect(component.isFormValid).toBe(true);
   });
+
+  it('should prevent adding duplicate ingredient already present in available list (case-insensitive)', () => {
+    component.newIngredientName = 'pain';
+    component.onQuickAddIngredient();
+
+    expect(component.newIngredientError).toContain('existe déjà');
+    expect(component.availableIngredients.length).toBe(2);
+  });
+
+  it('should successfully add a new unique ingredient', () => {
+    component.newIngredientName = 'Tomate';
+    component.onQuickAddIngredient();
+
+    expect(component.newIngredientError).toBe('');
+    expect(component.availableIngredients.some(ing => ing.name === 'Tomate')).toBe(true);
+    expect(component.showNewIngredientModal).toBe(false);
+  });
 });
